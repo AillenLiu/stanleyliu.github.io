@@ -45,11 +45,11 @@ nginx +keepalived+memcache+tomcat实现负载均衡双机互备和动静分离
 3. 整个拓补
 
 ## 二、 环境说明
-服务器：10.100.10.45安装keepaliced(心跳监控)、memcache(数据缓存)、nginx(负载均衡反向代理、静态处理)
-服务器：10.100.10.46安装keepaliced(心跳监控)、memcache(数据缓存)、nginx(负载均衡反向代理、静态处理)
-服务器：10.100.10.50安装tomcat(动态处理)
-服务器：10.100.10.51安装tomcat(动态处理)
-服务器：10.100.10.40安装solr搜索服务
+服务器：10.100.10.45安装keepaliced(心跳监控)、memcache(数据缓存)、nginx(负载均衡反向代理、静态处理)  
+服务器：10.100.10.46安装keepaliced(心跳监控)、memcache(数据缓存)、nginx(负载均衡反向代理、静态处理)   
+服务器：10.100.10.50安装tomcat(动态处理)   
+服务器：10.100.10.51安装tomcat(动态处理)   
+服务器：10.100.10.40安装solr搜索服务  
 服务器：10.100.10.30安装oracle数据库服务
 ## 三、 10.100.10.45服务器配置（下简称45）
 45服务安装软件有
@@ -76,7 +76,8 @@ nginx +keepalived+memcache+tomcat实现负载均衡双机互备和动静分离
 7. 创建启动脚本，将nginx安装为Linux服务
 通过vi命令创建启动脚本
 ` vi /etc/init.d/nginx `
-8. 将以下内容拷贝到vi编辑器中（或者在window中新建nginx，将以下内容拷贝到文件中，然后上传到/etc/ init.d目录）
+8. 将以下内容拷贝到vi编辑器中（或者在window中新建nginx，将以下内容拷贝到文件中，然后上传到/etc/ init.d目录） 
+
 ```
 #!/bin/sh
 #
@@ -219,10 +220,11 @@ esac
  
 exit $RETVAL
 ```
-8. 修改文件权限为可执行
-chmod +x /etc/init.d/nginx
+8. 修改文件权限为可执行 chmod +x /etc/init.d/nginx
 9. Nginx配置文件修改 ，进行负载均衡配置
-`vi  /usr/local/nginx/conf/nginx.conf  `  将nginx.conf修改为以下内容
+` vi  /usr/local/nginx/conf/nginx.conf  `
+  将nginx.conf修改为以下内容
+  
 ```
 user www;
 worker_processes     auto;
@@ -272,8 +274,9 @@ http {
 }
 ```
 
-9. B2B服务负载均衡配置
+9. B2B服务负载均衡配置  
 ` vi  /usr/local/nginx/conf/conf.d/yrguoshu.com.conf `
+
 ```
 #设定负载均衡的服务器列表
 upstream www {
@@ -345,8 +348,11 @@ location = /favicon.ico {
 }
 }
 ```
-0. B2C服务负载均衡配置
+
+10. B2C服务负载均衡配置
+
 ` vi  /usr/local/nginx/conf/conf.d/yrcailanzi.cn.conf `
+
 ```
 upstream yrcailanzi {
     ip_hash;
@@ -383,30 +389,32 @@ location ~ .*\.(html|htm|js|css|JPG|gif|jpg|jpeg|bmp|png|ico|swf|apk)$ {
 }
 }
 ```
-11. Nginx维护信息
-部署路径：``` /usr/local/nginx ```
-主要配置文件：``` /usr/local/nginx/conf/conf.d/yrguoshu.com.conf ```
-主要配置文件：``` /usr/local/nginx/conf/conf.d/ yrcailanzi.cn.conf ```
-动态资源分发主机：
-10.100.10.50
-10.100.10.51
-静态资源发布路径：（注意后台上传相关静态资源路径在这里）
-` www.yrguoshu.com ` 静态资源路径:` /home/data/www/Yurun-B2B-Mall `
-` www.yrcailanzi.cn ` 静态资源路径:` /home/data/www/yrcailanzi.cn `
-日志保存路径：` /var/log/nginx/ `
+
+11. Nginx维护信息  
+部署路径：``` /usr/local/nginx ```  
+主要配置文件：``` /usr/local/nginx/conf/conf.d/yrguoshu.com.conf ```  
+主要配置文件：``` /usr/local/nginx/conf/conf.d/ yrcailanzi.cn.conf ```  
+动态资源分发主机：  
+10.100.10.50  
+10.100.10.51  
+静态资源发布路径：（注意后台上传相关静态资源路径在这里）  
+[www.yrguoshu.com](www.yrguoshu.com)  静态资源路径: ` /home/data/www/Yurun-B2B-Mall `   
+[www.yrcailanzi.cn](www.yrcailanzi.cn) 静态资源路径: ` /home/data/www/yrcailanzi.cn `  
+日志保存路径：` /var/log/nginx/ `  
 启动方式：``` service nginx {start|stop|restart|reload|status} ```
 
 ### (二) Keepalived服务
 1. 下载keeplived
-``` wget http://www.keepalived.org/software/keepalived-1.2.12.tar.gz ```
-``` tar zxvf keepalived-1.2.12.tar.gz ```
-``` cd keepalived-1.2.12 ```
-``` ./configure --sysconf=/usr/local/keepalived/etc --prefix=/usr/local/keepalived  --sharedstatedir=/usr/local/keepalived ```
-``` make ```
+``` wget http://www.keepalived.org/software/keepalived-1.2.12.tar.gz ```  
+``` tar zxvf keepalived-1.2.12.tar.gz ```  
+``` cd keepalived-1.2.12 ```  
+``` ./configure --sysconf=/usr/local/keepalived/etc --prefix=/usr/local/keepalived  --sharedstatedir=/usr/local/keepalived ```  
+``` make ```  
 ``` make install ```
  
-2. 修改keepalived配置文件
-``` vi /usr/local/keepalived/etc/keepalived/keepalived.conf ``` 
+2. 修改keepalived配置文件  
+``` vi /usr/local/keepalived/etc/keepalived/keepalived.conf ```   
+
 ``` 
 ! Configuration File for keepalived
  
@@ -450,8 +458,10 @@ notify_master "/etc/keepalived/clean_arp.sh  10.100.10.48"
 }
 }
 ```
-3. 创建nginx进程监测脚本
-` vi /usr/local/keepalived/check_nginx.sh `
+
+3. 创建nginx进程监测脚本  
+` vi /usr/local/keepalived/check_nginx.sh `  
+
 ```
 #!/bin/bash
 if [ "$(ps -ef | grep "nginx: master process"| grep -v grep )" == "" ]
@@ -465,7 +475,8 @@ then
 fi
 ```
 4. 创建ip地址检查脚本（检测48虚拟ip是否被占用）
-` vi /usr/local/keepalived/clean_arp.sh `
+` vi /usr/local/keepalived/clean_arp.sh `  
+
 ``` 
 #!/bin/sh
 VIP=$1
@@ -474,51 +485,53 @@ GATEWAY=10.100.10.1
 ```
 5. 将Keepalived安装成Linux服务
 依次执行下列命令
-` #cp /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/  `
-` #cp /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig/  `
-` #mkdir /etc/keepalived `
-` #cp /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/ `
-` #cp /usr/local/keepalived/check_nginx.sh /etc/keepalived/ `
-` #cp /usr/local/keepalived/clean_arp.sh /etc/keepalived/ `
+` #cp /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/  `<br>
+` #cp /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig/  `<br>
+` #mkdir /etc/keepalived `<br>
+` #cp /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/ `<br>
+` #cp /usr/local/keepalived/check_nginx.sh /etc/keepalived/ `<br>
+` #cp /usr/local/keepalived/clean_arp.sh /etc/keepalived/ `<br>
 ` #cp /usr/local/keepalived/sbin/keepalived /usr/sbin/ `
 设定执行权限
 ` chmod +x /etc/rc.d/init.d/keepalived `
-通过以下命令启动、停止keepalived `
-` service keepalived start/stop/restart `
+通过以下命令启动、停止keepalived  
+` service keepalived start/stop/restart `  
 keepalived启动后，通过ip addr命令可以查看到10.100.10.48已经绑定到主机上。
  
 ### (三) Memcache服务
-1. 安装
-安装libevent  ` yum install libevent libevent-devel -y `
-` wget http://www.memcached.org/files/memcached-1.4.20.tar.gz `
-` tar zxvf memcached-1.4.20.tar.gz `
-` cd memcached-1.4.20 `
-` ./configure `
-` make && make install `
-` chmod +x /usr/local/bin/memcached `
-2. 启动
-` /usr/local/bin/memcached -d -m 256 -u root -l 10.100.10.45 -p 11211 -c 2048 -P /tmp/memcached.pid `
+1. 安装  
+安装libevent  ` yum install libevent libevent-devel -y `  
+` wget http://www.memcached.org/files/memcached-1.4.20.tar.gz `  
+` tar zxvf memcached-1.4.20.tar.gz `  
+` cd memcached-1.4.20 `  
+` ./configure `  
+` make && make install `  
+` chmod +x /usr/local/bin/memcached `  
+
+2. 启动  
+` /usr/local/bin/memcached -d -m 256 -u root -l 10.100.10.45 -p 11211 -c 2048 -P /tmp/memcached.pid `  
 没错误提示的话，证明安装成功并且启动了Memcached服务了。
 结束Memcached进程使用如下命令：
-``` kill `cat /tmp/memcached.pid` ```
+``` kill `cat /tmp/memcached.pid` ```  
 ## (四) Rsync文件同步服务
 45作为主机，46作为客户机，当45目录中的文件变化时，46上的任务将文件同步备份至46服务器对应的目录中
 1. 下载安装rsync
-wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.0.tar.gz
-tar zxvf rsync-3.1.0.tar.gz
-cd rsync-3.1.0
-./configure --prefix=/usr/local/rsync --with-rsyncd-conf=/usr/local/rsync/etc/rsyncd.conf
-make
-make install
+` wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.0.tar.gz `  
+` tar zxvf rsync-3.1.0.tar.gz `  
+` cd rsync-3.1.0 `  
+` ./configure --prefix=/usr/local/rsync --with-rsyncd-conf=/usr/local/rsync/etc/rsyncd.conf `  
+` make `  
+` make install `
  
 2. 创建rsync服务端配置文件
-进入/usr/local/rsync 目录
-mkdir etc
-mkdir pid
-mkdir  secrets
-mkdir socket
-创建配置文件
-vi /etc/rsyncd.conf
+进入/usr/local/rsync 目录  
+` mkdir etc `  
+` mkdir pid `  
+` mkdir  secrets `  
+` mkdir socket `  
+创建配置文件  
+` vi /etc/rsyncd.conf `  
+```
 motd file = /usr/local/rsync/etc/rsyncd.motd
 pid file = /usr/local/rsync/pid/rsyncd.pid 
 port = 873
@@ -580,43 +593,45 @@ transfer logging = true
 log format = %a-%b-%f-%m-%o-%P-%t-%u
 timeout = 600
 dont compress = true
- 
+ ```
 创建认证文件
-vi /secrets/rsyncd.secrets
-root:abcd1234
+` vi /secrets/rsyncd.secrets `  
+` root:abcd1234 `
  
 设置文件权限
-chown root:root /usr/local/rsync/secrets/rsyncd.secrets
-chmod 600 /usr/local/rsync/secrets/rsyncd.secrets
-chmod +x /usr/local/rsync/bin/rsync
+` chown root:root /usr/local/rsync/secrets/rsyncd.secrets `  
+` chmod 600 /usr/local/rsync/secrets/rsyncd.secrets `  
+` chmod +x /usr/local/rsync/bin/rsync `
 3. 将服务加入到开机启动
-/usr/local/rsync/bin/rsync --daemon --config=/usr/local/rsync/etc/rsyncd.conf
+` /usr/local/rsync/bin/rsync --daemon --config=/usr/local/rsync/etc/rsyncd.conf `  
 ## 四、 10.100.10.46服务器配置（下简称46）
-46服务安装软件有
-	nginx：负责解析静态资源及向50.51转发动态资源实现50、51的负载均衡
-	keepaliced:心跳监控，监测本机的nginx服务
-	memcache：数据缓存服务
+46服务安装软件有  
+	nginx：负责解析静态资源及向50.51转发动态资源实现50、51的负载均衡  
+	keepaliced:心跳监控，监测本机的nginx服务  
+	memcache：数据缓存服务  
 ### (一) Nginx服务
 1. 下载Tengine 
-wget http://tengine.taobao.org/download/tengine-2.1.0.tar.gz
+` wget http://tengine.taobao.org/download/tengine-2.1.0.tar.gz `
 关于Tengine：Tengine是由淘宝网发起的Web服务器项目。它在Nginx的基础上，针对大访问量网站的需求，添加了很多高级功能和特性。Tengine的性能和稳定性已经在大型的网站如淘宝网，天猫商城等得到了很好的检验。它的最终目标是打造一个高效、稳定、安全、易用的Web平台
 2. 安装需要的组件
-yum -y install gcc gcc-c++ openssl-devel zlib-devel pcre-devel autoconf automake ncurses
+` yum -y install gcc gcc-c++ openssl-devel zlib-devel pcre-devel autoconf automake ncurses `
 3. 创建nginx用户
-useradd -s /sbin/nologin -M nginx
+` useradd -s /sbin/nologin -M nginx `
 4. 创建www用户
-useradd -s /sbin/nologin -M www
+` useradd -s /sbin/nologin -M www `
 5. 解压并编译安装
-tar zxvf tengine-2.1.0.tar.gz
-cd tengine-2.1.0
+` tar zxvf tengine-2.1.0.tar.gz `  
+` cd tengine-2.1.0 `
 顺序执行以下命令
-./configure 
-make 
- make install
+` ./configure  `
+` make `  
+` make install `  
 6. 创建启动脚本，将nginx安装为Linux服务
 通过vi命令创建启动脚本
-vi /etc/init.d/nginx
-将以下内容拷贝到vi编辑器中（或者在window中新建nginx，将以下内容拷贝到文件中，然后上传到/etc/ init.d目录）
+` vi /etc/init.d/nginx `
+将以下内容拷贝到vi编辑器中（或者在window中新建nginx，将以下内容拷贝到文件中，然后上传到/etc/ init.d目录） 
+
+```
 #!/bin/sh
 #
 # nginx        Startup script for nginx
@@ -757,11 +772,13 @@ case "$1" in
 esac
  
 exit $RETVAL
- 
+```  
 修改文件权限为可执行
-chmod +x /etc/init.d/nginx
+` chmod +x /etc/init.d/nginx `  
 7. Nginx配置文件修改 ，进行负载均衡配置
-vi  /usr/local/nginx/conf/nginx.conf    将nginx.conf修改为以下内容
+` vi  /usr/local/nginx/conf/nginx.conf `  
+   将nginx.conf修改为以下内容
+```
 user www;
 worker_processes     auto;
 worker_cpu_affinity  auto;
@@ -808,10 +825,12 @@ http {
     client_body_buffer_size 128k;
     include conf.d/*.conf;
 }
- 
+```  
 8. B2B服务负载均衡配置
-vi  /usr/local/nginx/conf/conf.d/yrguoshu.com.conf 
+` vi  /usr/local/nginx/conf/conf.d/yrguoshu.com.conf `  
 #设定负载均衡的服务器列表
+
+```
 upstream www {
     ip_hash;
     server 10.100.10.50:8080;
@@ -880,31 +899,34 @@ location = /favicon.ico {
  access_log off;
 }
 }
- 
+```
+
 9. Nginx维护信息
-部署路径：/usr/local/nginx
-主要配置文件：/usr/local/nginx/conf/conf.d/yrguoshu.com.conf
-主要配置文件：/usr/local/nginx/conf/conf.d/ yrcailanzi.cn.conf
-动态资源分发主机：
-10.100.10.50
-10.100.10.51
-静态资源发布路径：（注意后台上传相关静态资源路径在这里）
-www.yrguoshu.com静态资源路径:/home/data/www/Yurun-B2B-Mall
-www.yrcailanzi.cn静态资源路径:/home/data/www/yrcailanzi.cn
-日志保存路径：/var/log/nginx/
-启动方式：service nginx {start|stop|restart|reload|status}
+部署路径：` /usr/local/nginx `  
+主要配置文件：` /usr/local/nginx/conf/conf.d/yrguoshu.com.conf `  
+主要配置文件：` /usr/local/nginx/conf/conf.d/ yrcailanzi.cn.conf `  
+动态资源分发主机：  
+10.100.10.50  
+10.100.10.51  
+静态资源发布路径：（注意后台上传相关静态资源路径在这里）  
+www.yrguoshu.com静态资源路径:/home/data/www/Yurun-B2B-Mall  
+www.yrcailanzi.cn静态资源路径:/home/data/www/yrcailanzi.cn   
+日志保存路径：` /var/log/nginx/ `   
+启动方式：` service nginx {start|stop|restart|reload|status} `  
  
 ### (二) Keepalived服务
 1. 下载keeplived
-wget http://www.keepalived.org/software/keepalived-1.2.12.tar.gz
-tar zxvf keepalived-1.2.12.tar.gz
-cd keepalived-1.2.12
-./configure --sysconf=/usr/local/keepalived/etc --prefix=/usr/local/keepalived  --sharedstatedir=/usr/local/keepalived 
-make
-make install
+` wget http://www.keepalived.org/software/keepalived-1.2.12.tar.gz `  
+` tar zxvf keepalived-1.2.12.tar.gz `  
+` cd keepalived-1.2.12 `  
+` ./configure --sysconf=/usr/local/keepalived/etc --prefix=/usr/local/keepalived  --sharedstatedir=/usr/local/keepalived `  
+` make `  
+` make install `  
  
 2. 修改keepalived配置文件
-vi /usr/local/keepalived/etc/keepalived/keepalived.conf
+` vi /usr/local/keepalived/etc/keepalived/keepalived.conf `  
+
+```
 ! Configuration File for keepalived
  
 global_defs {
@@ -946,9 +968,11 @@ virtual_ipaddress {
 notify_master "/etc/keepalived/clean_arp.sh  10.100.10.48"
 }
 }
+ ```
  
 3. 创建nginx进程监测脚本
-vi /usr/local/keepalived/check_nginx.sh
+` vi /usr/local/keepalived/check_nginx.sh `  
+```
 #!/bin/bash
 if [ "$(ps -ef | grep "nginx: master process"| grep -v grep )" == "" ]
 then
@@ -959,94 +983,100 @@ then
  killall keepalived
  fi
 fi
-	 
+```
+ 
 4. 创建ip地址检查脚本（检测48虚拟ip是否被占用）
-vi /usr/local/keepalived/clean_arp.sh
+` vi /usr/local/keepalived/clean_arp.sh `  
+```
 #!/bin/sh
 VIP=$1
 GATEWAY=10.100.10.1
 /sbin/arping -I bond0 -c 5 -s $VIP $GATEWAY &>/dev/null
- 
+```  
 5. 将Keepalived安装成Linux服务
 依次执行下列命令
-#cp /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/ 
-#cp /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig/ 
-#mkdir /etc/keepalived
-#cp /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/
-#cp /usr/local/keepalived/check_nginx.sh /etc/keepalived/
-#cp /usr/local/keepalived/clean_arp.sh /etc/keepalived/
-#cp /usr/local/keepalived/sbin/keepalived /usr/sbin/
+` #cp /usr/local/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/ `  
+` #cp /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig/ `  
+` #mkdir /etc/keepalived `  
+` #cp /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/ `  
+` #cp /usr/local/keepalived/check_nginx.sh /etc/keepalived/ `  
+` #cp /usr/local/keepalived/clean_arp.sh /etc/keepalived/ `  
+` #cp /usr/local/keepalived/sbin/keepalived /usr/sbin/ `
 设定执行权限
-chmod +x /etc/rc.d/init.d/keepalived 
-通过以下命令启动、停止keepalived
-service keepalived start/stop/restart
+` chmod +x /etc/rc.d/init.d/keepalived `  
+通过以下命令启动、停止keepalived  
+` service keepalived start/stop/restart `  
 keepalived启动后，通过ip addr命令可以查看到10.100.10.48已经绑定到主机上。
  
 ### (三) Memcache服务
 1. 安装
-安装libevent   yum install libevent libevent-devel -y
-wget http://www.memcached.org/files/memcached-1.4.20.tar.gz
-tar zxvf memcached-1.4.20.tar.gz
-cd memcached-1.4.20
-./configure
-make && make install
-chmod +x /usr/local/bin/memcached
+安装libevent   ` yum install libevent libevent-devel -y `  
+` wget http://www.memcached.org/files/memcached-1.4.20.tar.gz ` 
+` tar zxvf memcached-1.4.20.tar.gz `  
+` cd memcached-1.4.20 `  
+` ./configure `  
+` make && make install `  
+` chmod +x /usr/local/bin/memcached `  
 2. 启动
-/usr/local/bin/memcached -d -m 256 -u root -l 10.100.10.46 -p 11211 -c 2048 -P /tmp/memcached.pid
-没错误提示的话，证明安装成功并且启动了Memcached服务了。
-结束Memcached进程使用如下命令：
-kill `cat /tmp/memcached.pid`
-(四) Rsync文件同步服务
+` /usr/local/bin/memcached -d -m 256 -u root -l 10.100.10.46 -p 11211 -c 2048 -P /tmp/memcached.pid `  
+没错误提示的话，证明安装成功并且启动了Memcached服务了。  
+结束Memcached进程使用如下命令：  
+` kill `cat /tmp/memcached.pid` `  
+###(四) Rsync文件同步服务
 45作为主机，46作为客户机，当45目录中的文件变化时，46上的任务将文件同步备份至46服务器对应的目录中
 1. 下载安装rsync
-wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.0.tar.gz
-tar zxvf rsync-3.1.0.tar.gz
-cd rsync-3.1.0
-./configure --prefix=/usr/local/rsync --with-rsyncd-conf=/usr/local/rsync/etc/rsyncd.conf
-make
-make install
+` wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.0.tar.gz `   
+` tar zxvf rsync-3.1.0.tar.gz `  
+` cd rsync-3.1.0 `  
+` ./configure --prefix=/usr/local/rsync --with-rsyncd-conf=/usr/local/rsync/etc/rsyncd.conf `  
+` make `  
+` make install `  
  
 2. 创建rsync客户端配置文件
-进入/usr/local/rsync 目录
-mkdir etc
-mkdir pid
-mkdir  secrets
-mkdir socket
-创建认证文件
-vi /secrets/rsyncd.secrets
-abcd1234
- 
-创建同步脚本
-vi /etc/rsyncd.sh
+进入` /usr/local/rsync ` 目录
+` mkdir etc `  
+` mkdir pid `  
+` mkdir  secrets `  
+` mkdir socket `  
+创建认证文件   
+` vi /secrets/rsyncd.secrets `  
+abcd1234  
+创建同步脚本  
+` vi /etc/rsyncd.sh `  
+
+```
 #!/bin/bash
 /usr/local/rsync/bin/rsync -vzrtopg --progress --delete --password-file=/usr/local/rsync/secrets/rsyncd.secrets root@10.100.10.45::Yurun-B2B-Mall /home/data/www/Yurun-B2B-Mall
 /usr/local/rsync/bin/rsync -vzrtopg --progress --delete --password-file=/usr/local/rsync/secrets/rsyncd.secrets root@10.100.10.45::yrcailanzi.cn /home/data/www/yrcailanzi.cn
- 
+```  
 设置文件权限
-chown root:root /usr/local/rsync/secrets/rsyncd.secrets
-chmod 600 /usr/local/rsync/secrets/rsyncd.secrets
-chmod +x /usr/local/rsync/bin/rsync
-chmod +x  /usr/local/rsync/etc/rsyncd.sh
+` chown root:root /usr/local/rsync/secrets/rsyncd.secrets `  
+` chmod 600 /usr/local/rsync/secrets/rsyncd.secrets `  
+` chmod +x /usr/local/rsync/bin/rsync `  
+` chmod +x  /usr/local/rsync/etc/rsyncd.sh `  
 3. 创建定时任务
 开打系统计划配置
-crontab –e
+` crontab –e `  
 编辑如下内容（5分钟执行一次同步）
-*/5 * * * * sh /usr/local/rsync/etc/rsyncd.sh
+` */5 * * * * sh /usr/local/rsync/etc/rsyncd.sh `  
  
-五、 10.100.10.50服务器配置（下简称50）
+##五、 10.100.10.50服务器配置（下简称50）
 50服务器安装java及tomcat，负责动态资源的解析
-(一) Java安装
-通过命令java –version，查看主机是否安装有java，如果没有安装通过命令
-yum  install  java 选择7.0版本安装
-(二) 安装配置tomcat
-1. 安装tomcat(系统已经有jdk)
-wget http://mirrors.cnnic.cn/apache/tomcat/tomcat-6/v6.0.41/bin/apache-tomcat-6.0.41.tar.gz
-tar zxvf apache-tomcat-6.0.41.tar.gz
-mv apache-tomcat-6.0.41/ /usr/local/tomcat/
-2. 启动/停止tomcat
-/usr/local/tomcat/bin/startup.sh    启动
-/usr/local/ tomcat/bin/shutdown.sh    停止
-3. B2B tomcat虚拟主机配置
+###(一) Java安装
+通过命令` java –version `，查看主机是否安装有java，如果没有安装通过命令
+` yum  install  java ` 选择7.0版本安装
+###(二) 安装配置tomcat
+1. 安装tomcat(系统已经有jdk)  
+` wget http://mirrors.cnnic.cn/apache/tomcat/tomcat-6/v6.0.41/bin/apache-tomcat-6.0.41.tar.gz `  
+` tar zxvf apache-tomcat-6.0.41.tar.gz `  
+` mv apache-tomcat-6.0.41/ /usr/local/tomcat/ `
+  
+2. 启动/停止tomcat  
+` /usr/local/tomcat/bin/startup.sh `     启动  
+` /usr/local/ tomcat/bin/shutdown.sh `   停止
+
+3. B2B tomcat虚拟主机配置  
+ ```
       <Host name="www.yrguoshu.com"  appBase=""
             unpackWARs="true" autoDeploy="true">
             <Context path="" docBase="/home/data/www/Yurun-B2B-Mall" reloadable="true" debug="0" />
@@ -1054,30 +1084,33 @@ mv apache-tomcat-6.0.41/ /usr/local/tomcat/
                prefix="yrguoshu_access_log." suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
       </Host>
-4. Tomcat维护信息
+```
+
+4. Tomcat维护信息  
 www.yrguoshu.com
-###############
 WEB服务
-tomcat部署路径：/usr/local/tomcat
-tomcat启动脚本：/usr/local/tomcat/bin/startup.sh
-tomcat停止脚本：/usr/local/tomcat/bin/startup.sh
-项目发布路径：/home/data/www/Yurun-B2B-Mall/
-tomcat端口：8080
-#############################################################
+tomcat部署路径：` /usr/local/tomcat `  
+tomcat启动脚本：` /usr/local/tomcat/bin/startup.sh `  
+tomcat停止脚本：` /usr/local/tomcat/bin/startup.sh `  
+项目发布路径：` /home/data/www/Yurun-B2B-Mall/ `  
+tomcat端口：8080  
+****
 # 六、 10.100.10.51服务器配置（下简称51）
 51服务器安装java及tomcat，负责动态资源的解析
 ## (一) Java安装
-通过命令java –version，查看主机是否安装有java，如果没有安装通过命令
-yum  install  java 选择7.0版本安装
+通过命令` java –version `，查看主机是否安装有java，如果没有安装通过命令
+` yum  install  java ` 选择7.0版本安装
 ## (二) 安装配置tomcat
-1. 安装tomcat(系统已经有jdk)
-` wget http://mirrors.cnnic.cn/apache/tomcat/tomcat-6/v6.0.41/bin/apache-tomcat-6.0.41.tar.gz `<br>
-` tar zxvf apache-tomcat-6.0.41.tar.gz `<br>
+1. 安装tomcat(系统已经有jdk)  
+` wget http://mirrors.cnnic.cn/apache/tomcat/tomcat-6/v6.0.41/bin/apache-tomcat-6.0.41.tar.gz `  
+` tar zxvf apache-tomcat-6.0.41.tar.gz `  
 ` mv apache-tomcat-6.0.41/ /usr/local/tomcat/ `
-2. 启动/停止tomcat
-` /usr/local/tomcat/bin/startup.sh `    启动
+
+2. 启动/停止tomcat 
+` /usr/local/tomcat/bin/startup.sh `    启动  
 ` /usr/local/ tomcat/bin/shutdown.sh `  停止
-3. B2B tomcat虚拟主机配置
+
+3. B2B tomcat虚拟主机配置  
 ```
       <Host name="www.yrguoshu.com"  appBase=""
             unpackWARs="true" autoDeploy="true">
@@ -1089,11 +1122,10 @@ yum  install  java 选择7.0版本安装
 ```
 4. Tomcat维护信息
 [www.yrguoshu.com](www.yrguoshu.com)
-###############
-WEB服务
-tomcat部署路径：` /usr/local/tomcat `
-tomcat启动脚本：` /usr/local/tomcat/bin/startup.sh `
-tomcat停止脚本：` /usr/local/tomcat/bin/startup.sh `
-项目发布路径：` /home/data/www/Yurun-B2B-Mall/ `
+WEB服务  
+tomcat部署路径：` /usr/local/tomcat `  
+tomcat启动脚本：` /usr/local/tomcat/bin/startup.sh `  
+tomcat停止脚本：` /usr/local/tomcat/bin/startup.sh `  
+项目发布路径：` /home/data/www/Yurun-B2B-Mall/ `  
 tomcat端口：8080
-#############################################################
+
